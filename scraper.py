@@ -101,13 +101,13 @@ def extract_next_links(url, resp):
     if len(resp.raw_response.content) > MAX_PAGE_SIZE:
         return []
     content = resp.raw_response.content
-    markup = content
-    if content.startswith((b"\xff\xfe", b"\xfe\xff")):
-        markup = content.decode("utf-16", errors="replace")
-    else:
-        sample = content[: min(10000, len(content))]
-        if sample.count(b"\x00") / max(len(sample), 1) > 0.25:
-            markup = content.decode("utf-16-le", errors="replace")
+    try:
+        if content.startswith((b"\xff\xfe", b"\xfe\xff")):
+            markup = content.decode("utf-16", errors="ignore")
+        else:
+            markup = content.decode("utf-8", errors="ignore")
+    except Exception:
+        markup = ""
     try:
         soup = BeautifulSoup(markup, "lxml")
     except Exception:
