@@ -1,21 +1,22 @@
 from bs4 import BeautifulSoup
+from collections import Counter
+from parse_document import Parse
+from nltk.stem import PorterStemmer
 from postings import Postings
-from nltk import PorterStemmer
 
 stemmer = PorterStemmer()
 
 def buildIndex(documents):
     index = {}
-    docNum = 0
+    docNum = -1
 
     for document in documents:
         docNum = docNum + 1
         tokens = Parse(document)
         stemmedTokens = [stemmer.stem(t.lower()) for t in tokens]
 
-        uniqueStemmedTokens = set(stemmedTokens)
-        for token in uniqueStemmedTokens:
-            freq = tokens.count(token)
+        counts = Counter(stemmedTokens)
+        for token, freq in counts.items():
             tempPost = Postings(docNum, freq)
 
             if token not in index:
@@ -23,4 +24,3 @@ def buildIndex(documents):
             else:
                 index[token].append(tempPost)
     return index
-
