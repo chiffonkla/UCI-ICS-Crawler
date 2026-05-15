@@ -6,12 +6,26 @@ import sys
 
 from corpus_io import collect_pages, write_doc_ids
 from index import buildPartialIndex
+from merge_report import finishIndex
+
+# Defaults when you run: python main.py
+TEAM_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_CORPUS = os.path.normpath(os.path.join(TEAM_DIR, "..", "developer", "DEV"))
+DEFAULT_OUTPUT = os.path.normpath(os.path.join(TEAM_DIR, "..", "index", "dev-all"))
 
 def main():
     # Read command-line options
     parser = argparse.ArgumentParser(description="Indexer milestone 1")
-    parser.add_argument("--corpus", required=True, help="Folder with JSON pages, e.g. developer/DEV")
-    parser.add_argument("--output", required=True, help="Output folder")
+    parser.add_argument(
+        "--corpus",
+        default=DEFAULT_CORPUS,
+        help="Folder with JSON pages (default: ../developer/DEV)",
+    )
+    parser.add_argument(
+        "--output",
+        default=DEFAULT_OUTPUT,
+        help="Output folder (default: ../index/dev-all; created if missing)",
+    )
     parser.add_argument("--limit", type=int, default=None, help="Only load this many pages (for testing)")
     parser.add_argument(
         "--docs-per-partial",
@@ -20,6 +34,9 @@ def main():
         help="Write one partial index file after every N pages (default 5000).",
     )
     args = parser.parse_args()
+
+    print("Corpus:", args.corpus)
+    print("Output:", args.output)
 
     # Load pages as [(doc_id, {"url", "content"}), ...]
     print("Reading corpus...")
@@ -35,7 +52,7 @@ def main():
 
     documents = [page for (doc_id, page) in pages]
 
-    # index.py
+    # Parse is inside index.py
     partialsFolder = os.path.join(args.output, "partials")
     print("Building partial index files in:", partialsFolder)
     print("(one partial file every", args.docs_per_partial, "pages)")
@@ -50,6 +67,14 @@ def main():
             "Developer spec wants >= 3 partial files on full corpus.",
             "Use a smaller --docs-per-partial if you only see 1 or 2 files.",
         )
+        
+    # Merging partial files
+    finishIndex(
+        args.output,
+        nDocuments=len(pages),
+        corpus=os.path.normpath(args.corpus),
+        partialsFolder=partialsFolder,
+    )
 
 if __name__ == "__main__":
     main()
