@@ -1,7 +1,16 @@
-import glob
 import json
 import os
 import shutil
+
+# List partial files.
+def listPartialFiles(partialsFolder):
+    paths = []
+    for name in os.listdir(partialsFolder):
+        if name.startswith("partial_") and name.endswith(".txt"):
+            fullPath = os.path.join(partialsFolder, name)
+            paths.append(fullPath)
+    paths.sort()
+    return paths
 
 # Split a line into a term and a body.
 def splitLine(line):
@@ -50,7 +59,7 @@ def mergeTwoFiles(fileLeft, fileRight, fileOut):
 
 # Merge all partial files into one index.txt.
 def mergeAllPartials(partialsFolder, indexPath):
-    paths = sorted(glob.glob(os.path.join(partialsFolder, "partial_*.txt")))
+    paths = listPartialFiles(partialsFolder)
     if len(paths) == 0:
         print("No partial files in", partialsFolder)
         return False
