@@ -70,6 +70,10 @@ def collect_pages(corpus, limit=None):
         results.append((doc_id, page))
         doc_id = doc_id + 1
 
+        # Prints every 5000 good pages
+        if doc_id % 5000 == 0:
+            print("  ... loaded", doc_id, "pages so far")
+    
     return results
 
 # Write doc_ids.txt (each line is doc_id, tab, URL)
