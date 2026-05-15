@@ -1,4 +1,11 @@
-from bs4 import BeautifulSoup
+import json
+import sys
+import warnings
+
+from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning, XMLParsedAsHTMLWarning
+
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
 def tokenize(text):
     tokens = []
@@ -16,13 +23,19 @@ def tokenize(text):
 
 def Parse(document):
     if isinstance(document, dict):
-        html = document.get("content", "")
+        html = document.get("content", "") or ""
     else:
         html = str(document)
 
-    soup = BeautifulSoup(html, "html.parser")
+    if not isinstance(html, str):
+        html = str(html)
 
-    for tag in soup(["script", "style"]):
+    try:
+        soup = BeautifulSoup(html, "lxml")
+    except Exception:
+        soup = BeautifulSoup(html, "html.parser")
+
+    for tag in soup(["script", "style", "noscript"]):
         tag.decompose()
 
     text = soup.get_text(" ", strip=True)
