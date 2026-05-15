@@ -14,10 +14,10 @@ We do **not** store tf-idf in the index for M1; ranking comes in later milestone
 
 ## How to Run 
 
-From the **`team`** folder:
+From the **`m1`** folder:
 
 ```powershell
-cd team
+cd m1
 pip install -r requirements.txt
 
 # Full developer run (defaults: ../developer/DEV -> ../index/dev-all)
